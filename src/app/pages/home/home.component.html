@@ -1,0 +1,59 @@
+<div class="w-9/12 mx-auto text-center pt-8">
+    <div class="p-4 border-slate-800 border-4 w-2/3 mx-auto rounded-3xl mb-8 flex gap-3 items-center">
+        <div class="w-10/12">
+            <h2 class="pb-6 text-3xl text-start font-bold text-white">TODO Progress</h2>
+            <mat-progress-bar mode="determinate" [value]="progress"></mat-progress-bar>
+        </div>
+        <div class="w-24 h-24 bg-neutral-900 rounded-full flex justify-center items-center">
+            <p class="text-white text-3xl">{{completedTasks}}/{{totalTasks}}</p>
+        </div>
+    </div>
+    <h1 class="text-5xl text-white font-extrabold">TO DO NOW</h1>
+    <div class="inline-flex items-center justify-center w-full">
+        <hr class="w-64 h-1 my-8 bg-gray-200 border-0 rounded">
+        <div class="absolute px-4  -translate-x-1/2 bg-stone-700 left-1/2">
+            <svg class="w-[42px] h-[42px] text-white" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="none" viewBox="0 0 24 24">
+                <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="0.9" d="M10.779 17.779 4.36 19.918 6.5 13.5m4.279 4.279 8.364-8.643a3.027 3.027 0 0 0-2.14-5.165 3.03 3.03 0 0 0-2.14.886L6.5 13.5m4.279 4.279L6.499 13.5m2.14 2.14 6.213-6.504M12.75 7.04 17 11.28"/>
+            </svg>
+        </div>
+    </div>   
+    <form [formGroup]="taskForm" class="flex w-full justify-between gap-4" (ngSubmit)="addTask()">   
+        <div class="relative w-10/12">
+            <div class="absolute inset-y-0 start-0 flex items-center ps-3 pointer-events-none">
+                <svg class="w-6 h-6 text-gray-500" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 20 20">
+                    <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="0.9" d="M10.779 17.779 4.36 19.918 6.5 13.5m4.279 4.279 8.364-8.643a3.027 3.027 0 0 0-2.14-5.165 3.03 3.03 0 0 0-2.14.886L6.5 13.5m4.279 4.279L6.499 13.5m2.14 2.14 6.213-6.504M12.75 7.04 17 11.28"/>
+                </svg>
+            </div>
+            <input formControlName="task" type="todoItem" id="todoItem" class="w-full p-4 ps-11 text-sm text-zinc-900 border border-zinc-300 rounded-lg bg-zinc-100 " placeholder="Add your Task" required />
+        </div>
+        @if(taskForm.get('task')?.errors?.['required'] && taskForm.get('task')?.touched){
+            <div class="p-4 mt-4 w-3/12 mx-auto font-semibold text-lg text-start text-red-800 rounded-lg bg-red-50" role="alert">
+                <p>please add task!!</p>
+            </div>
+        } 
+        <div class="">
+            <button type="submit" [disabled]="taskForm.invalid" class="text-xl text-white bg-neutral-900 my-2 hover:bg-zinc-800 focus:ring-4 focus:outline-none focus:ring-zinc-300 font-medium rounded-lg px-4 py-2">Add Task</button>
+        </div>
+    </form>
+
+    <hr class="h-px my-8 bg-gray-200 border-0">
+
+    @for (task of tasksArr; track $index) {
+        <div class="my-4 bg-neutral-900 flex h-auto gap-3 py-6 rounded-lg w-10/12 mx-auto px-3 items-center relative group overflow-hidden transition-all duration-300">
+            <input (change)="checkBox($event)" id="helper-radio" aria-describedby="helper-radio-text" type="checkbox" value="" class="w-6 h-6 rounded-full text-green-500 bg-gray-100 border-gray-300 focus:ring-green-400 focus:ring-2">
+            <p id="helper-radio-text" class="text-white">{{task}}</p>
+            <div class="absolute -bottom-1 end-0 translate-y-full group-hover:translate-y-0 transition-all duration-300">
+                <button (click)="deleteSpecTask($index)" class="bg-neutral-500 rounded-t-lg ms-3 p-1">
+                    <svg class="w-7 h-7 text-white" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="currentColor" viewBox="0 0 24 24">
+                        <path fill-rule="evenodd" d="M8.586 2.586A2 2 0 0 1 10 2h4a2 2 0 0 1 2 2v2h3a1 1 0 1 1 0 2v12a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V8a1 1 0 0 1 0-2h3V4a2 2 0 0 1 .586-1.414ZM10 6h4V4h-4v2Zm1 4a1 1 0 1 0-2 0v8a1 1 0 1 0 2 0v-8Zm4 0a1 1 0 1 0-2 0v8a1 1 0 1 0 2 0v-8Z" clip-rule="evenodd"/>
+                    </svg>              
+                </button>
+                <button (click)="openDialog('0ms', '0ms', task)" class="bg-neutral-500 rounded-t-lg ms-3 p-1 rounded-br-lg">
+                    <svg class="w-7 h-7 text-white" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="none" viewBox="0 0 24 24">
+                        <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.779 17.779 4.36 19.918 6.5 13.5m4.279 4.279 8.364-8.643a3.027 3.027 0 0 0-2.14-5.165 3.03 3.03 0 0 0-2.14.886L6.5 13.5m4.279 4.279L6.499 13.5m2.14 2.14 6.213-6.504M12.75 7.04 17 11.28"/>
+                    </svg>          
+                </button>
+            </div>
+        </div>
+    }  
+</div>
