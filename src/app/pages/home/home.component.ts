@@ -4,7 +4,6 @@ import { FormControl, FormGroup, FormsModule, ReactiveFormsModule, Validators } 
 import { FlowbitesService } from '../../core/services/flowbites/flowbites.service';
 import { Todo } from '../../core/models/todo';
 import { MatSlideToggleModule } from '@angular/material/slide-toggle';
-
 import {
   MAT_DIALOG_DATA,
   MatDialog,
@@ -37,7 +36,6 @@ export class HomeComponent {
   
   taskForm : FormGroup = new FormGroup({
     task: new FormControl(null, [Validators.required]),
-    checkBox: new FormControl(null)
   })
 
   ngOnInit(): void{
@@ -47,28 +45,26 @@ export class HomeComponent {
         this.tasksArr = JSON.parse(storedTasks);
       }
     }
-    this.totalTasks = this.tasksArr.length;
+    this.calcCompletedTasks()
   }
 
   ngDoCheck(): void{
-    this.totalTasks = this.tasksArr.length;
+    this.calcCompletedTasks()
   }
 
-  checkBox(event: Event){
-    const checkbox = event.target as HTMLInputElement;
-    if(checkbox.checked){
-      this.completedTasks = this.completedTasks + 1
-    }
-    if(checkbox.checked == false){
-      this.completedTasks = this.completedTasks - 1
-    }
-    this.progress = (this.completedTasks/this.totalTasks)*100;
+  calcCompletedTasks(){
+    this.completedTasks = this.tasksArr.filter(task=>task.completed).length;
+    this.totalTasks = this.tasksArr.length;
+    this.progress = this.totalTasks > 0 ? (this.completedTasks / this.totalTasks) * 100 : 0;  
   }
 
   addTask(){
-    console.log(this.taskForm.value);
-    this.tasksArr.push(this.taskForm.get('task')?.value);
     this.taskInput = this.taskForm.get('task')?.value;
+    const newTask: Todo={
+      task: this.taskInput,
+      completed: false
+    }
+    this.tasksArr.push(newTask);
     this.resetForm();
     localStorage.setItem('tasks', JSON.stringify(this.tasksArr))
   }
@@ -78,26 +74,33 @@ export class HomeComponent {
     this.taskForm.markAsUntouched()
   }
 
-  deleteSpecTask(index: number ){
+  deleteSpecTask(index: number){
     this.tasksArr.splice(index, 1);
-    localStorage.setItem('tasks', JSON.stringify(this.tasksArr))
+    localStorage.setItem('tasks', JSON.stringify(this.tasksArr));
   }
 
   openDialog(enterAnimationDuration: string, exitAnimationDuration: string, todo: Todo): void {
     const index = this.tasksArr.indexOf(todo)
     const dialogRef = this._MatDialog.open(DialogAnimationsExampleDialog, {
       width: '50%',
-      data: {todo},
+      data: {task: todo.task},
       enterAnimationDuration,
       exitAnimationDuration,
     });
-    dialogRef.afterClosed().subscribe((result: Todo) => {
+    
+    dialogRef.afterClosed().subscribe((result: string) => {
       if (result) {
-        this.tasksArr[index] = result;
+        this.tasksArr[index].task = result;
         localStorage.setItem('tasks', JSON.stringify(this.tasksArr));
       }
     });
   } 
+
+  toggleCompleted(todo: Todo){
+    console.log('todo clicked');
+    todo.completed = !todo.completed;
+    localStorage.setItem('tasks', JSON.stringify(this.tasksArr))
+  }
 }
 
 @Component({
@@ -112,9 +115,9 @@ export class DialogAnimationsExampleDialog {
   updatedTask: string;
 
   constructor(
-    @Inject(MAT_DIALOG_DATA) public data: { todo: string },
+    @Inject(MAT_DIALOG_DATA) public data: { task: string },
     private dialogRef: MatDialogRef<DialogAnimationsExampleDialog>) {
-    this.updatedTask = data.todo;
+    this.updatedTask = data.task;
   }
 
   save(): void {

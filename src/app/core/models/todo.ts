@@ -1,4 +1,4 @@
 export interface Todo {
-    todo: string;
-    checkBox: boolean;
+    task: string;
+    completed ?: boolean
 }
